@@ -26,12 +26,18 @@ p{
     line-height: 1.5;
 }
 
+span#fecha {
+    display: block;
+    font-size: 30px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
 .countdown {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
 }
 
 .countdown div {

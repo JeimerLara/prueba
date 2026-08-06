@@ -1,4 +1,5 @@
 const reloj = document.getElementById('reloj');
+const fechaEl = document.getElementById('fecha');
 const mesesEl = document.getElementById('meses');
 const diasEl = document.getElementById('dias');
 const horasEl = document.getElementById('horas');
@@ -8,13 +9,19 @@ const segundosEl = document.getElementById('segundos');
 function actualizarReloj() {
     const ahora = new Date();
     const hora = ahora.getHours() % 12 || 12; // Convertir a formato de 12 horas
-    
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const diaSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
+    const diaDeLaSemana = diaSemana[ahora.getDay()];
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    const mes = meses[ahora.getMonth()];
+    const anio = ahora.getFullYear();
     const horas =  String(hora).padStart(2, '0');
     const minutos = String(ahora.getMinutes()).padStart(2, '0');
     const segundos = String(ahora.getSeconds()).padStart(2, '0');
     const ampm = horas >= 12 ? 'a.m.' : 'p.m.'; 
     
+    fechaEl.textContent = `${diaDeLaSemana}, ${dia} de ${mes} de ${anio}`;
     reloj.textContent = `${horas}:${minutos}:${segundos} ${ampm}`;
 }
 
