@@ -45,3 +45,11 @@ body{
 .countdown span h4 {
     color: #666;
 }
+
+.complemeto {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    column-gap: 10px;
+}

@@ -48,7 +48,16 @@ function calcularDiferencia(fechaInicio, fechaFin) {
     return { años, meses, dias, horas, minutos, segundos };
 }
 
+function calcularDiferenciaTotal(fechaInicio, fechaFin) {
+    const diferencia = fechaFin - fechaInicio; // Diferencia en milisegundos
 
+    const totalSegundos = Math.floor(diferencia / 1000);
+    const totalMinutos = Math.floor(totalSegundos / 60);
+    const totalHoras = Math.floor(totalMinutos / 60);
+    const totalDias = Math.floor(totalHoras / 24);
+
+    return { totalSegundos, totalMinutos, totalHoras, totalDias };
+}
 
 // ========================================
 // Reloj y fecha
@@ -91,9 +100,23 @@ function actualizarCuentaRegresiva() {
     }
 
     const diferencia = calcularDiferencia(ahora, fechaObjetivo);
+    const diferenciaTotal = calcularDiferenciaTotal(ahora, fechaObjetivo);
 
-    const unidades = [['años', diferencia.años], ['meses', diferencia.meses], ['días', diferencia.dias], ['horas', diferencia.horas], ['minutos', diferencia.minutos], ['segundos', diferencia.segundos]];
+    const unidades = [
+        ['Años', diferencia.años],
+        ['Meses', diferencia.meses],
+        ['Días', diferencia.dias],
+        ['Horas', String(diferencia.horas).padStart(2, '0')],
+        ['Minutos', String(diferencia.minutos).padStart(2, '0')],
+        ['Segundos', String(diferencia.segundos).padStart(2, '0')]
+    ];
 
+    const unidadesTotales = [
+        ['Días', diferenciaTotal.totalDias.toLocaleString('es-CO')],
+        ['Horas', diferenciaTotal.totalHoras.toLocaleString('es-CO')],
+        ['Minutos', diferenciaTotal.totalMinutos.toLocaleString('es-CO')],
+        ['Segundos', diferenciaTotal.totalSegundos.toLocaleString('es-CO')]
+    ];
 
     const primerUnidad = unidades.find(([, valor]) => valor !== 0);
 
@@ -105,7 +128,14 @@ function actualizarCuentaRegresiva() {
         <div class ="countdown">
             ${mostrarUnidades.map(([unidad, valor]) => `<span><h4>${unidad}</h4><p>${valor}</p></span>`).join('')}
         </div>
-    </div>`;
+        </div>
+        <div>
+            <h2>Total</h2>
+            <div class="complemeto">
+                ${unidadesTotales.map(([unidad, valor]) => `<span><h4>${unidad}</h4><p>${valor}</p></span>`).join('')}
+            </div>
+        </div>
+        `;
 }
 
 // ========================================
