@@ -2,16 +2,7 @@
 // Elementos del DOM
 // ========================================
 
-const reloj = document.getElementById('reloj');
-const fecha = document.getElementById('fecha');
-
-const contador = {
-    meses: document.getElementById('meses'),
-    dias: document.getElementById('dias'),
-    horas: document.getElementById('horas'),
-    minutos: document.getElementById('minutos'),
-    segundos: document.getElementById('segundos')
-};
+const container = document.getElementById('container');
 
 // ========================================
 // Constantes y variables
@@ -23,10 +14,40 @@ const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', '
 
 const diaSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
-const segundos = 1000; // 1 segundo en milisegundos
-const minutos = segundos * 60; // 1 minuto en milisegundos
-const horas = minutos * 60; // 1 hora en milisegundos
-const dias = horas * 24; // 1 día en milisegundos
+
+function calcularDiferencia(fechaInicio, fechaFin) {
+    let años = fechaFin.getFullYear() - fechaInicio.getFullYear();
+    let meses = fechaFin.getMonth() - fechaInicio.getMonth();
+    let dias = fechaFin.getDate() - fechaInicio.getDate();
+    let horas = fechaFin.getHours() - fechaInicio.getHours();
+    let minutos = fechaFin.getMinutes() - fechaInicio.getMinutes();
+    let segundos = fechaFin.getSeconds() - fechaInicio.getSeconds();
+
+    if (segundos < 0) {
+        segundos += 60;
+        minutos--;
+    }
+    if (minutos < 0) {
+        minutos += 60;
+        horas--;
+    }
+    if (horas < 0) {
+        horas += 24;
+        dias--;
+    }
+    if (dias < 0) {
+        const ultimoDiaMesAnterior = new Date(fechaFin.getFullYear(), fechaFin.getMonth(), 0).getDate();
+        dias += ultimoDiaMesAnterior;
+        meses--;
+    }
+    if (meses < 0) {
+        meses += 12;
+        años--;
+    }
+
+    return { años, meses, dias, horas, minutos, segundos };
+}
+
 
 
 // ========================================
@@ -38,7 +59,7 @@ function actualizarReloj() {
 
     const hora24 = ahora.getHours();
     const hora12 = hora24 % 12 || 12; // Convertir a formato de 12 horas
-    
+
     const dS = diaSemana[ahora.getDay()];
     const d = String(ahora.getDate()).padStart(2, '0');
     const m = meses[ahora.getMonth()];
@@ -49,8 +70,12 @@ function actualizarReloj() {
     const segundos = String(ahora.getSeconds()).padStart(2, '0');
     const ampm = hora24 >= 12 ? 'p.m.' : 'a.m.';
 
-    fecha.textContent = `${dS}, ${d} de ${m} de ${a}`;
-    reloj.textContent = `${hora}:${minutos}:${segundos} ${ampm}`;
+    container.innerHTML =
+        `<div id="reloj" class="fecha">
+    <h2>Fecha y Hora Actual</h2>
+    <h3>${dS}, ${d} de ${m} de ${a}</h3>
+    <h2>${hora}:${minutos}:${segundos} ${ampm}</h2>
+    </div>`;
 }
 
 // ========================================
@@ -59,34 +84,39 @@ function actualizarReloj() {
 
 function actualizarCuentaRegresiva() {
     const ahora = new Date();
-    const diferencia = fechaObjetivo - ahora;
 
-    if (diferencia <= 0) {
-        Object.values(contador).forEach(element => {
-            element.textContent = '00';
-        });
+    if (fechaObjetivo <= ahora) {
+        container.innerHTML += `<div><h2>La fecha objetivo ya ha pasado.</h2></div>`;
         return;
     }
 
-    const mesesRestantes = Math.floor(diferencia / (dias * 30));
-    const diasRestantes = Math.floor((diferencia % (dias * 30)) / dias);
-    const horasRestantes = Math.floor((diferencia % dias) / horas);
-    const minutosRestantes = Math.floor((diferencia % horas) / minutos);
-    const segundosRestantes = Math.floor((diferencia % minutos) / segundos);
+    const diferencia = calcularDiferencia(ahora, fechaObjetivo);
 
-    contador.meses.textContent = String(mesesRestantes).padStart(2, '0');
-    contador.dias.textContent = String(diasRestantes).padStart(2, '0');
-    contador.horas.textContent = String(horasRestantes).padStart(2, '0');
-    contador.minutos.textContent = String(minutosRestantes).padStart(2, '0');
-    contador.segundos.textContent = String(segundosRestantes).padStart(2, '0');
+    const unidades = [['años', diferencia.años], ['meses', diferencia.meses], ['días', diferencia.dias], ['horas', diferencia.horas], ['minutos', diferencia.minutos], ['segundos', diferencia.segundos]];
+
+
+    const primerUnidad = unidades.find(([, valor]) => valor !== 0);
+
+    const mostrarUnidades = primerUnidad ? unidades.slice(unidades.indexOf(primerUnidad)) : [];
+
+    container.innerHTML +=
+        `<div>
+        <h2>Cuenta Regresiva</h2>
+        <div class ="countdown">
+            ${mostrarUnidades.map(([unidad, valor]) => `<span><h4>${unidad}</h4><p>${valor}</p></span>`).join('')}
+        </div>
+    </div>`;
 }
 
 // ========================================
 // Inicialización
 // ========================================
 
-actualizarReloj();
-actualizarCuentaRegresiva();
+function actualizar() {
+    actualizarReloj();
+    actualizarCuentaRegresiva();
+}
 
-setInterval(actualizarReloj, 1000);
-setInterval(actualizarCuentaRegresiva, 1000);
+actualizar(); // Llamada inicial para mostrar la hora y la cuenta regresiva inmediatamente
+
+setInterval(actualizar, 1000);
