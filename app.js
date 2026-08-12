@@ -1,3 +1,5 @@
+import CalendarioReloj from "./calendarioReloj.js";
+
 // ========================================
 // Elementos del DOM
 // ========================================
@@ -10,132 +12,61 @@ const container = document.getElementById('container');
 
 const fechaObjetivo = new Date('2027-01-01T00:00:00'); // Cambia esta fecha a tu objetivo
 
-const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-
-const diaSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-
-
-function calcularDiferencia(fechaInicio, fechaFin) {
-    let años = fechaFin.getFullYear() - fechaInicio.getFullYear();
-    let meses = fechaFin.getMonth() - fechaInicio.getMonth();
-    let dias = fechaFin.getDate() - fechaInicio.getDate();
-    let horas = fechaFin.getHours() - fechaInicio.getHours();
-    let minutos = fechaFin.getMinutes() - fechaInicio.getMinutes();
-    let segundos = fechaFin.getSeconds() - fechaInicio.getSeconds();
-
-    if (segundos < 0) {
-        segundos += 60;
-        minutos--;
-    }
-    if (minutos < 0) {
-        minutos += 60;
-        horas--;
-    }
-    if (horas < 0) {
-        horas += 24;
-        dias--;
-    }
-    if (dias < 0) {
-        const ultimoDiaMesAnterior = new Date(fechaFin.getFullYear(), fechaFin.getMonth(), 0).getDate();
-        dias += ultimoDiaMesAnterior;
-        meses--;
-    }
-    if (meses < 0) {
-        meses += 12;
-        años--;
-    }
-
-    return { años, meses, dias, horas, minutos, segundos };
-}
-
-function calcularDiferenciaTotal(fechaInicio, fechaFin) {
-    const diferencia = fechaFin - fechaInicio; // Diferencia en milisegundos
-
-    const totalSegundos = Math.floor(diferencia / 1000);
-    const totalMinutos = Math.floor(totalSegundos / 60);
-    const totalHoras = Math.floor(totalMinutos / 60);
-    const totalDias = Math.floor(totalHoras / 24);
-
-    return { totalSegundos, totalMinutos, totalHoras, totalDias };
-}
 
 // ========================================
 // Reloj y fecha
 // ========================================
 
-function actualizarReloj() {
-    const ahora = new Date();
+function actualizarReloj(ahora) {
+    const calendarioReloj = new CalendarioReloj();
 
-    const hora24 = ahora.getHours();
-    const hora12 = hora24 % 12 || 12; // Convertir a formato de 12 horas
-
-    const dS = diaSemana[ahora.getDay()];
-    const d = String(ahora.getDate()).padStart(2, '0');
-    const m = meses[ahora.getMonth()];
-    const a = ahora.getFullYear();
-
-    const hora = String(hora12).padStart(2, '0');
-    const minutos = String(ahora.getMinutes()).padStart(2, '0');
-    const segundos = String(ahora.getSeconds()).padStart(2, '0');
-    const ampm = hora24 >= 12 ? 'p.m.' : 'a.m.';
-
-    container.innerHTML =
-        `<div id="reloj" class="fecha">
-    <h2>Fecha y Hora Actual</h2>
-    <h3>${dS}, ${d} de ${m} de ${a}</h3>
-    <h2>${hora}:${minutos}:${segundos} ${ampm}</h2>
+    const diaSemanas = calendarioReloj.actualizarReloj(ahora).diaSemanas;
+    const dia = calendarioReloj.actualizarReloj(ahora).dia;
+    const mes = calendarioReloj.actualizarReloj(ahora).mes;
+    const año = calendarioReloj.actualizarReloj(ahora).año;
+    const hora = calendarioReloj.actualizarReloj(ahora).hora;
+    const minutos = calendarioReloj.actualizarReloj(ahora).minutos;
+    const segundos = calendarioReloj.actualizarReloj(ahora).segundos;
+    const ampm = calendarioReloj.actualizarReloj(ahora).ampm;
+    
+    const htmlFecha = `<div class="fecha">
+        <span><h2>${diaSemanas}, ${dia} de ${mes} de ${año}</h2></span>
     </div>`;
+
+    const htmlReloj = `<div class="reloj">
+        <span><h2>${hora}:${minutos}:${segundos} ${ampm}</h2></span>
+    </div>`;
+
+    return htmlFecha + htmlReloj;
 }
 
 // ========================================
 // Cuenta regresiva
 // ========================================
 
-function actualizarCuentaRegresiva() {
-    const ahora = new Date();
+function actualizarCuentaRegresiva(ahora) {
+    const calendarioReloj = new CalendarioReloj();
 
     if (fechaObjetivo <= ahora) {
-        container.innerHTML += `<div><h2>La fecha objetivo ya ha pasado.</h2></div>`;
-        return;
+        return `<div><h2>La fecha objetivo ya ha pasado.</h2></div>`;
     }
 
-    const diferencia = calcularDiferencia(ahora, fechaObjetivo);
-    const diferenciaTotal = calcularDiferenciaTotal(ahora, fechaObjetivo);
+    const mostrarUnidades = calendarioReloj.cuentaRegresiva(ahora, fechaObjetivo);
 
-    const unidades = [
-        ['Años', diferencia.años],
-        ['Meses', diferencia.meses],
-        ['Días', diferencia.dias],
-        ['Horas', String(diferencia.horas).padStart(2, '0')],
-        ['Minutos', String(diferencia.minutos).padStart(2, '0')],
-        ['Segundos', String(diferencia.segundos).padStart(2, '0')]
-    ];
+    const unidadesTotales = calendarioReloj.cuentaRegresivaTotal(ahora, fechaObjetivo);
 
-    const unidadesTotales = [
-        ['Días', diferenciaTotal.totalDias.toLocaleString('es-CO')],
-        ['Horas', diferenciaTotal.totalHoras.toLocaleString('es-CO')],
-        ['Minutos', diferenciaTotal.totalMinutos.toLocaleString('es-CO')],
-        ['Segundos', diferenciaTotal.totalSegundos.toLocaleString('es-CO')]
-    ];
+    const html = mostrarUnidades.map(([nombre, valor]) => `<div>
+            <span><h2>${valor}</h2></span>
+            <span><h3>${nombre}</h3></span>
+        </div>`).join('');
 
-    const primerUnidad = unidades.find(([, valor]) => valor !== 0);
+    const htmlTotales = unidadesTotales.map(([nombre, valor]) => `<div>
+            <span><h2>${valor}</h2></span>
+            <span><h3>${nombre}</h3></span>
+        </div>`).join('');
 
-    const mostrarUnidades = primerUnidad ? unidades.slice(unidades.indexOf(primerUnidad)) : [];
 
-    container.innerHTML +=
-        `<div>
-        <h2>Cuenta Regresiva</h2>
-        <div class ="countdown">
-            ${mostrarUnidades.map(([unidad, valor]) => `<span><h4>${unidad}</h4><p>${valor}</p></span>`).join('')}
-        </div>
-        </div>
-        <div>
-            <h2>Total</h2>
-            <div class="complemeto">
-                ${unidadesTotales.map(([unidad, valor]) => `<span><h4>${unidad}</h4><p>${valor}</p></span>`).join('')}
-            </div>
-        </div>
-        `;
+    return `<h2>Cuenta Regresiva</h2> <div class="countdown">${html}</div> <h2>Total</h2> <div class="countdown">${htmlTotales}</div>`;
 }
 
 // ========================================
@@ -143,8 +74,12 @@ function actualizarCuentaRegresiva() {
 // ========================================
 
 function actualizar() {
-    actualizarReloj();
-    actualizarCuentaRegresiva();
+    const ahora = new Date();
+
+    container.innerHTML = `
+        ${actualizarReloj(ahora)}
+        ${actualizarCuentaRegresiva(ahora)}
+    `;
 }
 
 actualizar(); // Llamada inicial para mostrar la hora y la cuenta regresiva inmediatamente
