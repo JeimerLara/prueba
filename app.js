@@ -10,31 +10,25 @@ const container = document.getElementById('container');
 // Constantes y variables
 // ========================================
 
-const fechaObjetivo = new Date('2027-01-01T00:00:00'); // Cambia esta fecha a tu objetivo
+const fechaObjetivo = new Date(2027, 0, 1, 0, 0, 0); // Cambia esta fecha a tu objetivo
 
+
+    const calendarioReloj = new CalendarioReloj();
 
 // ========================================
 // Reloj y fecha
 // ========================================
 
 function actualizarReloj(ahora) {
-    const calendarioReloj = new CalendarioReloj();
 
-    const diaSemanas = calendarioReloj.actualizarReloj(ahora).diaSemanas;
-    const dia = calendarioReloj.actualizarReloj(ahora).dia;
-    const mes = calendarioReloj.actualizarReloj(ahora).mes;
-    const año = calendarioReloj.actualizarReloj(ahora).año;
-    const hora = calendarioReloj.actualizarReloj(ahora).hora;
-    const minutos = calendarioReloj.actualizarReloj(ahora).minutos;
-    const segundos = calendarioReloj.actualizarReloj(ahora).segundos;
-    const ampm = calendarioReloj.actualizarReloj(ahora).ampm;
+    const {diaSemanas, dia, mes, año, hora, minutos, segundos, ampm} = calendarioReloj.actualizarReloj(ahora);
     
     const htmlFecha = `<div class="fecha">
-        <span><h2>${diaSemanas}, ${dia} de ${mes} de ${año}</h2></span>
+        <h2>${diaSemanas}, ${dia} de ${mes} de ${año}</h2>
     </div>`;
 
     const htmlReloj = `<div class="reloj">
-        <span><h2>${hora}:${minutos}:${segundos} ${ampm}</h2></span>
+        <h2>${hora}:${minutos}:${segundos} ${ampm}</h2>
     </div>`;
 
     return htmlFecha + htmlReloj;
@@ -45,7 +39,6 @@ function actualizarReloj(ahora) {
 // ========================================
 
 function actualizarCuentaRegresiva(ahora) {
-    const calendarioReloj = new CalendarioReloj();
 
     if (fechaObjetivo <= ahora) {
         return `<div><h2>La fecha objetivo ya ha pasado.</h2></div>`;
@@ -56,13 +49,13 @@ function actualizarCuentaRegresiva(ahora) {
     const unidadesTotales = calendarioReloj.cuentaRegresivaTotal(ahora, fechaObjetivo);
 
     const html = mostrarUnidades.map(([nombre, valor]) => `<div>
-            <span><h2>${valor}</h2></span>
-            <span><h3>${nombre}</h3></span>
+            <h2>${valor}</h2>
+            <h3>${nombre}</h3>
         </div>`).join('');
 
     const htmlTotales = unidadesTotales.map(([nombre, valor]) => `<div>
-            <span><h2>${valor}</h2></span>
-            <span><h3>${nombre}</h3></span>
+            <h2>${valor}</h2>
+            <h3>${nombre}</h3>
         </div>`).join('');
 
 

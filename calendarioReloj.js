@@ -29,9 +29,9 @@ class CalendarioReloj {
             dias--;
         }
         if (dias < 0) {
+            meses--;
             const ultimoDiaMesAnterior = new Date(fechaFin.getFullYear(), fechaFin.getMonth(), 0).getDate();
             dias += ultimoDiaMesAnterior;
-            meses--;
         }
         if (meses < 0) {
             meses += 12;
@@ -43,7 +43,7 @@ class CalendarioReloj {
 
     // Calcula la diferencia total en días, horas, minutos y segundos
     calcularDiferenciaTotal(fechaInicio, fechaFin) {
-        const diferencia = fechaFin - fechaInicio; // Diferencia en milisegundos
+        const diferencia = fechaFin.getTime() - fechaInicio.getTime(); // Diferencia en milisegundos
 
         const totalSegundos = Math.floor(diferencia / 1000);
         const totalMinutos = Math.floor(totalSegundos / 60);
@@ -58,17 +58,19 @@ class CalendarioReloj {
         const diferencia = this.calcularDiferenciaTotal(ahora, fechaObjetivo);
 
         const unidades = [
-            ['Días', diferencia.totalDias.toLocaleString('es-CO')],
-            ['Horas', diferencia.totalHoras.toLocaleString('es-CO')],
-            ['Minutos', diferencia.totalMinutos.toLocaleString('es-CO')],
-            ['Segundos', diferencia.totalSegundos.toLocaleString('es-CO')]
+            ['Días', diferencia.totalDias],
+            ['Horas', diferencia.totalHoras],
+            ['Minutos', diferencia.totalMinutos],
+            ['Segundos', diferencia.totalSegundos]
         ];
 
-        const primerUnidad = unidades.find(([, valor]) => valor !== 0);
+        const primerIndice = unidades.findIndex(([, valor]) => valor > 0);
 
-        const mostrarUnidades = primerUnidad ? unidades.slice(unidades.indexOf(primerUnidad)) : [];
+        if (primerIndice === -1) {
+            return [];
+        }
 
-        return mostrarUnidades;
+        return unidades.slice(primerIndice).map(([nombre, valor]) => [nombre, valor.toLocaleString('es-CO')]);
     }
 
     // Cuenta regresiva
@@ -79,16 +81,17 @@ class CalendarioReloj {
             ['Años', diferencia.años],
             ['Meses', diferencia.meses],
             ['Días', diferencia.dias],
-            ['Horas', String(diferencia.horas).padStart(2, '0')],
-            ['Minutos', String(diferencia.minutos).padStart(2, '0')],
-            ['Segundos', String(diferencia.segundos).padStart(2, '0')]
+            ['Horas', diferencia.horas],
+            ['Minutos', diferencia.minutos],
+            ['Segundos', diferencia.segundos]
         ];
 
-        const primerUnidad = unidades.find(([, valor]) => valor !== 0);
+        const primerIndice = unidades.findIndex(([, valor]) => valor > 0);
 
-        const mostrarUnidades = primerUnidad ? unidades.slice(unidades.indexOf(primerUnidad)) : [];
-
-        return mostrarUnidades;
+        if (primerIndice === -1) {
+            return [];
+        }
+        return unidades.slice(primerIndice).map(([nombre, valor]) => [nombre, ['Horas', 'Minutos', 'Segundos'].includes(nombre) ? String(valor).padStart(2, '0') : valor]);
     }
 
     // Actualiza el reloj y la fecha
@@ -96,17 +99,21 @@ class CalendarioReloj {
         const hora24 = ahora.getHours();
         const hora12 = hora24 % 12 || 12; // Convertir a formato de 12 horas
 
-        const diaSemanas = this.#diaSemana[ahora.getDay()];
-        const dia = String(ahora.getDate()).padStart(2, '0');
-        const mes = this.#meses[ahora.getMonth()];
-        const año = ahora.getFullYear();
+        const fecha = {
+            diaSemanas: this.#diaSemana[ahora.getDay()],
+            dia: ahora.getDate(),
+            mes: this.#meses[ahora.getMonth()],
+            año: ahora.getFullYear()
+        };
 
-        const hora = String(hora12).padStart(2, '0');
-        const minutos = String(ahora.getMinutes()).padStart(2, '0');
-        const segundos = String(ahora.getSeconds()).padStart(2, '0');
-        const ampm = hora24 >= 12 ? 'p.m.' : 'a.m.';
+        const horas = {
+            hora: String(hora12).padStart(2, '0'),
+            minutos: String(ahora.getMinutes()).padStart(2, '0'),
+            segundos: String(ahora.getSeconds()).padStart(2, '0'),
+            ampm: hora24 >= 12 ? 'p.m.' : 'a.m.'
+        };
 
-        return { diaSemanas, dia, mes, año, hora, minutos, segundos, ampm };
+        return { ...fecha, ...horas };
     }
 }
 
